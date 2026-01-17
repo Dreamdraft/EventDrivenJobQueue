@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"os"
 
 	"gopkg.in/gomail.v2"
@@ -11,7 +12,7 @@ func sendMail(payload json.RawMessage) error {
 	var email Email
 	err := json.Unmarshal(payload, &email)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	user := os.Getenv("GMAIL_USER")
@@ -20,7 +21,7 @@ func sendMail(payload json.RawMessage) error {
 	port := os.Getenv("SMTP_PORT")
 
 	if user == "" || pass == "" || host == "" || port == "" {
-		panic("Missing email env variables")
+		return errors.New("missing email env variables")
 	}
 
 	mail := gomail.NewMessage()

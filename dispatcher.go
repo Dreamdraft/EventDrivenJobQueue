@@ -1,14 +1,22 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"log"
 	"time"
 )
 
-func startDispatcher(db *sql.DB) {
+func startDispatcher(db *sql.DB, ctx context.Context) {
+	defer close(workerCh)
 	// pull the job from the db and assign to the worker
 	for {
+		select {
+		case <-ctx.Done():
+			log.Println("Dispatcher is Dead")
+			return
+		default:
+		}
 		job, err := ClaimJob(db)
 		if err == sql.ErrNoRows {
 			time.Sleep(500 * time.Millisecond)
@@ -20,7 +28,12 @@ func startDispatcher(db *sql.DB) {
 			time.Sleep(time.Second)
 			continue
 		}
-		workerCh <- job
+		//workerCh <- job
+		select {
+		case workerCh <- job:
+		case <-ctx.Done():
+			log.Println("Dispatcher is Dead")
+			return
+		}
 	}
-
 }

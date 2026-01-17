@@ -14,11 +14,13 @@ func startWorkers(db *sql.DB) {
 		n = 5
 	}
 	for i := 0; i < n; i++ {
+		wg.Add(1)
 		go worker(db)
 	}
 }
 
 func worker(db *sql.DB) {
+	defer wg.Done()
 	for job := range workerCh {
 
 		err := executeJob(db, job)

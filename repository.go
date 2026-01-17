@@ -56,10 +56,16 @@ func produceJob(req *CreateJob, db *sql.DB) error {
 
 // Claim Job
 func ClaimJob(db *sql.DB) (workerJob, error) {
-	row := db.QueryRow(`UPDATE jobs SET status = 'processing',started_at = datetime('now') WHERE id = (SELECT id FROM jobs WHERE status = 'queued' AND run_at <= datetime('now') ORDER BY run_at LIMIT 1)
+	tx, err := db.Begin()
+	if err != nil {
+		return workerJob{}, err
+	}
+	defer tx.Rollback()
+
+	row := tx.QueryRow(`UPDATE jobs SET status = 'processing',started_at = datetime('now') WHERE id = (SELECT id FROM jobs WHERE status = 'queued' AND run_at <= datetime('now') ORDER BY run_at LIMIT 1)
 	RETURNING id, type, status, payload, max_retries, attempts,run_at`)
 	var job workerJob
-	err := row.Scan(&job.Id, &job.Type, &job.Status, &job.Payload, &job.MaxRetries, &job.Attempts, &job.RunAt)
+	err = row.Scan(&job.Id, &job.Type, &job.Status, &job.Payload, &job.MaxRetries, &job.Attempts, &job.RunAt)
 	if err == sql.ErrNoRows {
 		return workerJob{}, err
 	}
@@ -67,17 +73,15 @@ func ClaimJob(db *sql.DB) (workerJob, error) {
 	if err != nil {
 		return workerJob{}, err
 	}
-	return job, nil
+	return job, tx.Commit()
 }
 
 // mark the job Failed //retry and back off
 func markJobFailed(db *sql.DB, job workerJob) {
-	var att int
-	cont MaxRetries=5
+	const MaxRetries = 5
 	if job.Attempts < job.MaxRetries {
-		att = job.Attempts + 1
-		for i:=1;i<=MaxRetries;i++ {
-			res, err := db.Exec(`UPDATE jobs SET status = 'queued',run_at = datetime('now', '+10 seconds'),attempts = ? WHERE id = ? AND status='processing'`, att, job.Id)
+		for i := 1; i <= MaxRetries; i++ {
+			res, err := db.Exec(`UPDATE jobs SET status = 'queued',run_at = datetime('now', '+10 seconds'),attempts = attempts+1  WHERE id = ? AND status='processing'`, job.Id)
 			if err != nil {
 				if isLockedError(err) {
 					time.Sleep(1000 * time.Millisecond)
@@ -95,11 +99,11 @@ func markJobFailed(db *sql.DB, job workerJob) {
 				fmt.Printf("Failed state update failed")
 				return
 			}
-			fmt.Printf("Attempts:%v, MaxRetries:%v \n", att, job.MaxRetries)
+			//fmt.Printf("Attempts:%v, MaxRetries:%v \n", att, job.MaxRetries)
 			return
 		}
 	} else {
-		for i:=1;i<=MaxRetries;i++ {
+		for i := 1; i <= MaxRetries; i++ {
 			res, err := db.Exec(`UPDATE jobs SET status = 'failed',finished_at = datetime('now') WHERE id = ? AND status='processing'`, job.Id)
 			if err != nil {
 				if isLockedError(err) {
@@ -125,8 +129,8 @@ func markJobFailed(db *sql.DB, job workerJob) {
 }
 
 func markJobDone(db *sql.DB, id int) {
-	cont MaxRetries=5
-	for i:=1;i<=MaxRetries;i++ {
+	const MaxRetries = 5
+	for i := 1; i <= MaxRetries; i++ {
 		res, err := db.Exec(`UPDATE jobs SET status = 'done',finished_at = datetime('now') WHERE id = ? AND status='processing'`, id)
 
 		if err != nil {

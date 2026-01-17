@@ -1,24 +1,43 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"sync"
+	"syscall"
 
 	"github.com/joho/godotenv"
 	_ "modernc.org/sqlite"
 )
 
-// producer Limiter
-// The "producerLimiter" is a channel used for limiting the number of concurrent producers in the
-// system.
+// request limiter
 var requestLimiter = make(chan struct{}, 100)
+
+// producer Limiter
 var producerLimiter = make(chan struct{}, 50)
 
 var workerCh = make(chan workerJob, 10)
 
+var wg = sync.WaitGroup{}
+
 func main() {
+
+	//shutdown signal catch
+	ctx, stop := signal.NotifyContext(
+		context.Background(),
+		os.Interrupt,
+		syscall.SIGTERM,
+	)
+	defer stop()
+	go func() {
+		<-ctx.Done()
+		fmt.Println("shutdown started")
+	}()
 
 	db, err := sql.Open("sqlite", "jobs.db")
 	if err != nil {
@@ -44,7 +63,7 @@ func main() {
 
 	//load .env
 	if err := godotenv.Load(); err != nil {
-		log.Fatal("Error loading .env file")
+		log.Printf("Error loading .env file")
 	}
 
 	// Inilize Schema
@@ -58,13 +77,22 @@ func main() {
 	db.SetMaxIdleConns(1)
 
 	//start
-	go startDispatcher(db)
+	go startDispatcher(db, ctx)
 	go startWorkers(db)
 	go startVisibilityReaper(db)
 
 	router := NewRouter(db)
 	port := 8080
 	adr := fmt.Sprintf(":%v", port)
+	go func() {
+		err := http.ListenAndServe(adr, router)
+		if err != nil {
+			log.Println("http server error:", err)
+		}
+	}()
 
-	log.Fatal(http.ListenAndServe(adr, router))
+	<-ctx.Done()
+	wg.Wait()
+
+	//time.Sleep(5 * time.Second)
 }
