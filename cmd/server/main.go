@@ -85,16 +85,22 @@ func main() {
 	router := jobqueue.NewRouter(db, requestLimiter, producerLimiter)
 	port := 8080
 	adr := fmt.Sprintf(":%v", port)
+	srv := &http.Server{
+		Addr:    adr,
+		Handler: router,
+	}
+	// start server
 	go func() {
-		err := http.ListenAndServe(adr, router)
-		if err != nil {
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Println("http server error:", err)
 		}
 	}()
-
 	<-ctx.Done()
-	close(workerCh) //close the dispatcher and worker communication
-	wg.Wait()       //wait untill all the workers conplete before shutdown
 
-	//time.Sleep(5 * time.Second)
+	// shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	// defer cancel()
+	// if err := srv.Shutdown(shutdownCtx); err != nil {
+	// 	log.Println("HTTP shutdown error:", err)
+	// }
+	wg.Wait() //wait untill all the workers conplete before shutdown
 }

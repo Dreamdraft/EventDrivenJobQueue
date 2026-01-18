@@ -8,6 +8,7 @@ import (
 )
 
 func StartDispatcher(db *sql.DB, ctx context.Context, workerCh chan WorkerJob) {
+	defer close(workerCh) //close the dispatcher and worker communication
 	// pull the job from the db and assign to the worker
 	for {
 		select {
@@ -27,7 +28,6 @@ func StartDispatcher(db *sql.DB, ctx context.Context, workerCh chan WorkerJob) {
 			time.Sleep(time.Second)
 			continue
 		}
-		//workerCh <- job
 		select {
 		case workerCh <- job:
 		case <-ctx.Done():
