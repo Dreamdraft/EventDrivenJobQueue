@@ -32,6 +32,7 @@ This system guarantees:
 **• Eventual recovery of stuck jobs via visibility timeouts**  
 **• Bounded retries and bounded concurrency**  
 **• Graceful shutdown without partial job state writes**
+
 Duplicate execution is possible by design and must be handled via idempotent side effects where required.
 
 This system does **NOT** guarantee:
