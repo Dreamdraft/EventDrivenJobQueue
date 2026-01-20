@@ -68,3 +68,10 @@ The system explicitly does **NOT** attempt to solve:
 **• In-memory components coordinate execution, not correctness**  
 **• Correctness is enforced via atomic state transitions, not worker behavior**
 
+## Design Details
+
+**Full design rationale, failure modes, and explicit trade-offs are documented here:**
+
+👉 **[DESIGN.pdf](docs/DESIGN.pdf)**
+
+
