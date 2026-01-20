@@ -17,7 +17,7 @@ func StartDispatcher(db *sql.DB, ctx context.Context, workerCh chan WorkerJob) {
 			return
 		default:
 		}
-		job, err := ClaimJob(db)
+		job, err := ClaimJob(db, ctx)
 		if err == sql.ErrNoRows {
 			time.Sleep(500 * time.Millisecond)
 			continue

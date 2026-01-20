@@ -10,6 +10,7 @@ import (
 	"os/signal"
 	"sync"
 	"syscall"
+	"time"
 
 	"github.com/joho/godotenv"
 	"github.com/susi/EventDrivenJobQueue/internal/jobqueue"
@@ -29,12 +30,12 @@ var wg = sync.WaitGroup{}
 func main() {
 
 	//shutdown signal catch
-	ctx, stop := signal.NotifyContext(
+	ctx, cancel := signal.NotifyContext(
 		context.Background(),
 		os.Interrupt,
 		syscall.SIGTERM,
 	)
-	defer stop()
+	defer cancel()
 	go func() {
 		<-ctx.Done()
 		fmt.Println("shutdown started")
@@ -80,7 +81,7 @@ func main() {
 	//start
 	go jobqueue.StartDispatcher(db, ctx, workerCh)
 	go jobqueue.StartWorkers(db, workerCh, &wg)
-	go jobqueue.StartVisibilityReaper(db)
+	go jobqueue.StartVisibilityReaper(db, ctx)
 
 	router := jobqueue.NewRouter(db, requestLimiter, producerLimiter)
 	port := 8080
@@ -97,10 +98,10 @@ func main() {
 	}()
 	<-ctx.Done()
 
-	// shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	// defer cancel()
-	// if err := srv.Shutdown(shutdownCtx); err != nil {
-	// 	log.Println("HTTP shutdown error:", err)
-	// }
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := srv.Shutdown(shutdownCtx); err != nil {
+		log.Println("HTTP shutdown error:", err)
+	}
 	wg.Wait() //wait untill all the workers conplete before shutdown
 }

@@ -1,6 +1,7 @@
 package jobqueue
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"log"
@@ -55,14 +56,19 @@ func produceJob(req *CreateJob, db *sql.DB) error {
 }
 
 // Claim Job
-func ClaimJob(db *sql.DB) (WorkerJob, error) {
-	tx, err := db.Begin()
+func ClaimJob(db *sql.DB, ctx context.Context) (WorkerJob, error) {
+	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return WorkerJob{}, err
 	}
-	defer tx.Rollback()
+	committed := false
+	defer func() {
+		if !committed {
+			tx.Rollback()
+		}
+	}()
 
-	row := tx.QueryRow(`UPDATE jobs SET status = 'processing',started_at = datetime('now') WHERE id = (SELECT id FROM jobs WHERE status = 'queued' AND run_at <= datetime('now') ORDER BY run_at LIMIT 1)
+	row := tx.QueryRowContext(ctx, `UPDATE jobs SET status = 'processing',attempts = attempts+1,started_at = datetime('now') WHERE id = (SELECT id FROM jobs WHERE status = 'queued' AND run_at <= datetime('now') ORDER BY run_at LIMIT 1)
 	RETURNING id, type, status, payload, max_retries, attempts,run_at`)
 	var job WorkerJob
 	err = row.Scan(&job.Id, &job.Type, &job.Status, &job.Payload, &job.MaxRetries, &job.Attempts, &job.RunAt)
@@ -73,7 +79,11 @@ func ClaimJob(db *sql.DB) (WorkerJob, error) {
 	if err != nil {
 		return WorkerJob{}, err
 	}
-	return job, tx.Commit()
+	if err := tx.Commit(); err != nil {
+		return WorkerJob{}, err
+	}
+	committed = true
+	return job, nil
 }
 
 // mark the job Failed //retry and back off
@@ -81,7 +91,7 @@ func markJobFailed(db *sql.DB, job WorkerJob) {
 	const MaxRetries = 5
 	if job.Attempts < job.MaxRetries {
 		for i := 1; i <= MaxRetries; i++ {
-			res, err := db.Exec(`UPDATE jobs SET status = 'queued',run_at = datetime('now', '+10 seconds'),attempts = attempts+1  WHERE id = ? AND status='processing'`, job.Id)
+			res, err := db.Exec(`UPDATE jobs SET status = 'queued',run_at = datetime('now', '+10 seconds') WHERE id = ? AND status='processing'`, job.Id)
 			if err != nil {
 				if isLockedError(err) {
 					time.Sleep(1000 * time.Millisecond)
