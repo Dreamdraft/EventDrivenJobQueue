@@ -98,8 +98,15 @@ The system explicitly does **NOT** attempt to solve:
 Build the server binary:
 
 ```bash
-go build -o bin/server ./cmd/server
+go build -o bin/server ./cmd/server 
+```
+This produces a standalone executable at: 
+```bash
+bin/server
+```
 
-This produces a standalone executable at:
+### Run 
+
+
 
 
