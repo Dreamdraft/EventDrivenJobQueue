@@ -14,25 +14,46 @@
 ## Problem Statement
 > Background job processing is deceptively hard.
 >
->
-> Processes crash.
->
-> Workers die mid-execution.
->
-> Shutdowns happen at the worst possible time.
->
->
->Losing jobs is unacceptable.
->
->Preventing all duplicate execution is impractical.
+> • Processes crash  
+> • Workers die mid-execution  
+> • Shutdowns happen at the worst possible time  
+> • Losing jobs is unacceptable  
+> • Preventing all duplicate execution is impractical
+
 
 ---
 
 ## Guarantees
 
+This system guarantees:
+
+**• At-least-once execution**  
+**• No job loss after persistence**  
+**• Eventual recovery of stuck jobs**  
+**• Bounded retries and bounded concurrency**  
+**• Graceful shutdown without partial writes**
+
+This system does **NOT** guarantee:
+
+**• Exactly-once execution**  
+**• Distributed fault tolerance**  
+**• Global job ordering**  
+**• Real-time execution guarantees**
+
+**These trade-offs are intentional and enable simpler recovery and failure handling.**
+
 ---
 
 ## Non-Goals
+
+The system explicitly does **NOT** attempt to solve:
+
+**• Exactly-once semantics**  
+**• Distributed scheduling across nodes**  
+**• High-throughput streaming**  
+**• Horizontal database scalability**
+
+**The design prioritizes correctness, clarity, and failure-mode reasoning over scale.**
 
 ---
 
