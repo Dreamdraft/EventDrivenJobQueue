@@ -29,9 +29,10 @@ This system guarantees:
 
 **• At-least-once execution**  
 **• No job loss after persistence**  
-**• Eventual recovery of stuck jobs**  
+**• Eventual recovery of stuck jobs via visibility timeouts**  
 **• Bounded retries and bounded concurrency**  
-**• Graceful shutdown without partial writes**
+**• Graceful shutdown without partial job state writes**
+Duplicate execution is possible by design and must be handled via idempotent side effects where required.
 
 This system does **NOT** guarantee:
 
@@ -67,6 +68,7 @@ The system explicitly does **NOT** attempt to solve:
 **• The database is the single source of truth**  
 **• In-memory components coordinate execution, not correctness**  
 **• Correctness is enforced via atomic state transitions, not worker behavior**
+**• Scheduling decisions are centralized to simplify correctness reasoning**
 
 ## Design Details
 
