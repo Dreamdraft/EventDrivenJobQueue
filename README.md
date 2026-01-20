@@ -11,26 +11,26 @@ This system guarantees at-least-once execution and explicitly does NOT attempt e
 If you think exactly-once is required here, you’re wrong. It’s usually a lie built on complexity
 
 
-# 🚀 Event-Driven Job Queue
+# Event-Driven Job Queue
 
-> **A single-node, crash-resilient background job system**  
+> **Crash-resilient background job system**  
 > _Mini Sidekiq / Celery_
 
 ---
 
-## 🧠 Overview
+## Overview
 
 ---
 
-## 🎯 Problem Statement
+## Problem Statement
 
 ---
 
-## ✅ Guarantees
+## Guarantees
 
 ---
 
-## 🚫 Non-Goals
+## Non-Goals
 
 ---
 
